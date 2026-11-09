@@ -1,0 +1,7 @@
+url: https://github.com/lanyuxi/Multi-agent-development-dynamic-effect
+name: Multi-agent development dynamic effect
+category: ui
+description:
+  en: 'While an AI agent builds a webpage, a swarm of 8-48 multiplayer-style cursors rebuilds it from a blank blueprint in the Harness sidebar preview: dark rulers, blue selection frames with size badges, typed text and red snapping guides, and the page is left completely clean afterwards.'
+  zh: 'AI 写网页时，8–48 个多人协作风格的光标会在侧边栏预览里从空白蓝图把页面重新搭出来：深色标尺、蓝色选框与尺寸徽章、逐字打出的文字、红色吸附参考线，搭完后页面恢复干净原样。'
+icon: https://raw.githubusercontent.com/lanyuxi/Multi-agent-development-dynamic-effect/main/assets/icon-180.png

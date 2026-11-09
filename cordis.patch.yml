@@ -1,0 +1,3 @@
+- insert:
+    - id: swarm-rebuild
+      name: 'dsh-swarm-rebuild'

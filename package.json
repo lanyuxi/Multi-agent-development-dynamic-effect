@@ -1,0 +1,54 @@
+{
+  "name": "dsh-swarm-rebuild",
+  "version": "3.2.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./runtime.js": "./runtime.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "runtime.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-api-gateway",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-sidebar-browser",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "description": "A team of AI cursors marks up the developing page like a design tool (rulers, selection handles, size labels, guides) inside the Harness sidebar browser, then the markings vanish.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "swarm-rebuild",
+    "cursor",
+    "animation",
+    "web-dev"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lanyuxi/Multi-agent-development-dynamic-effect.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/lanyuxi/Multi-agent-development-dynamic-effect",
+  "bugs": {
+    "url": "https://github.com/lanyuxi/Multi-agent-development-dynamic-effect/issues"
+  }
+}
