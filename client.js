@@ -58,8 +58,13 @@ window.__ModuleLoader__.load({
         let origin = '';
         try { origin = window.location.origin; } catch (e) {}
         const httpOrigin = origin && origin.indexOf('http') === 0 ? origin : '';
-        const marketBase = httpOrigin || 'http://127.0.0.1:50993';
-        const marketUrl = marketBase + PREFIX + '/market/index.json';
+        // The market index is fetched by the HOST process (Node `fetch`), so it
+        // needs an absolute loopback URL. Under the desktop shell the GUI origin
+        // is `dsh-app://...`, not http, so we cannot derive it from the origin --
+        // and a hardcoded fallback goes stale the moment the web server picks a
+        // different port. Resolve it from /__endpoint instead (the same listener
+        // serves the index), and re-register once that resolves.
+        let marketUrl = httpOrigin ? httpOrigin + PREFIX + '/market/index.json' : '';
 
         let disposed = false;
         let endpointReady = false;
@@ -72,6 +77,7 @@ window.__ModuleLoader__.load({
         let revealAttempts = 0;
         let subscribeTimer = 0, marketTimer = 0;
         let subscribeAttempts = 0, marketAttempts = 0, marketDone = false;
+        let marketRemote = null;
 
         // ---- resolve the sidebar-safe (alternate-port) preview URL ----------
         function fetchEndpoint() {
@@ -85,7 +91,9 @@ window.__ModuleLoader__.load({
                 if (p && p > 0 && p < 65536) {
                   endpointReady = true;
                   tabUrl = 'http://127.0.0.1:' + p + PREFIX + '/';
+                  marketUrl = 'http://127.0.0.1:' + p + PREFIX + '/market/index.json';
                   kick();
+                  if (marketRemote) registerMarket(marketRemote);
                 } else retryEndpoint();
               })
               .catch(() => { retryEndpoint(); });
@@ -193,6 +201,11 @@ window.__ModuleLoader__.load({
         // remote shapes => skip, never risk overwriting configured indexes.
         async function registerMarket(remote) {
           if (disposed || marketDone) return;
+          marketRemote = remote;
+          // The URL comes from /__endpoint; without it we would have to hardcode
+          // a port that goes stale on the next restart. Wait for the resolution
+          // (fetchEndpoint() calls back here once it succeeds).
+          if (!marketUrl) return;
           const pm = remote.pluginMarket;
           if (!pm || typeof pm.listIndexes !== 'function' ||
               typeof pm.setIndexes !== 'function') { retryMarket(remote); return; }
