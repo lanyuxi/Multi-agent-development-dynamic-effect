@@ -148,7 +148,7 @@ export function apply(ctx) {
   let rootUsable = dirHasHtml(root);
   const runtime = loadRuntime(root);
   const pkg = loadPackageMeta(root);
-  const market = marketIndex(pkg, loadIconData(root));
+  const market = marketIndex(pkg, loadIconData(root), loadLocaleText(root));
 
   // The AI's exact developing page. fs/observed is an EMIT-mode event whose
   // listeners must be synchronous, trivial recorders that NEVER throw (throws
@@ -520,13 +520,37 @@ function loadIconData(root) {
   return '';
 }
 
+// Read the locale files so the market entry describes what the plugin ACTUALLY
+// does. (A hardcoded description drifts the moment the effect changes, and an
+// out-of-date description is a catalog rejection reason.) Missing/unparsable
+// locales fall back to neutral text rather than failing the whole index.
+function loadLocaleText(root) {
+  const out = { en: '', zh: '' };
+  const read = (lang) => {
+    const candidates = [];
+    try { candidates.push(new URL('./locale/' + lang + '.json', import.meta.url)); } catch (e) {}
+    candidates.push(path.join(root, 'swarm-rebuild-plugin', 'locale', lang + '.json'));
+    for (const c of candidates) {
+      try {
+        const j = JSON.parse(fs.readFileSync(c, 'utf8'));
+        const d = j && j.meta && j.meta.description;
+        if (typeof d === 'string' && d.trim()) return d.trim();
+      } catch (e) {}
+    }
+    return '';
+  };
+  out.en = read('en');
+  out.zh = read('zh');
+  return out;
+}
+
 // Build a format-1 plugin-market index (as validated by
 // @deepseek-ai/dsh-plugin-market-index parseMarketIndex). Keeping it derived
-// from package.json + icon.svg means there is no second source of truth to
-// drift. source.type = "npm" yields install spec "<name>@<version>"; since the
-// bundle is already installed at that exact name+version, the market lists it
-// as installed. Omit metadata/engines entirely for guaranteed validity.
-function marketIndex(pkg, iconData) {
+// from package.json + icon.svg + locale means there is no second source of
+// truth to drift. source.type = "npm" yields install spec "<name>@<version>";
+// since the bundle is already installed at that exact name+version, the market
+// lists it as installed. Omit metadata/engines entirely for guaranteed validity.
+function marketIndex(pkg, iconData, localeText) {
   const name = String(pkg.name || 'dsh-swarm-rebuild');
   const version = String(pkg.version || '3.0.0');
   // publishTimestamp: integer Unix seconds in [0, 1e11). Derive it from the
@@ -539,13 +563,13 @@ function marketIndex(pkg, iconData) {
     if (Number.isInteger(s) && s >= 0 && s < 1e11) ts = s;
   } catch (e) {}
 
+  const lt = localeText || { en: '', zh: '' };
+  const enText = lt.en || 'Rebuilds the developing page with a swarm of AI cursors that draw every block out of a blank blueprint.';
+  const zhText = lt.zh || '用一群 AI 光标在空白蓝图上逐个把网页搭建出来。';
   const entry = {
     name,
     title: { en: 'Swarm Rebuild', zh: '群蜂建站' },
-    description: {
-      en: 'A swarm of labeled AI cursors builds the webpage block by block, as if multiple agents were coding it together. Plays once on every change, then the cursors disappear.',
-      zh: '一群带名字的 AI 光标逐块把网页搭建起来，像多个智能体在协同开发；每次改动播放一次，随后光标全部消失。',
-    },
+    description: { en: enText, zh: zhText },
     versions: [{
       version,
       publishTimestamp: ts,
