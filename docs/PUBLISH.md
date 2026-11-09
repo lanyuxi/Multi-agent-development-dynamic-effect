@@ -187,11 +187,14 @@ http(s) 地址即可）。缺点：得自己维护一个公网可访问的地址
 `- id: plugin-market / config.indexes` 下已经加过：
 
 ```
-http://127.0.0.1:50993/__dsh_swarm_rebuild__/market/index.json
+http://127.0.0.1:50994/__dsh_swarm_rebuild__/market/index.json
 ```
 
+注意这里用的是**预览端口**（`GUI 端口 + 1`），不是 GUI 自己的端口；插件把
+market 索引挂在同一条 `__dsh_swarm_rebuild__` 路由上，两个端口都能访问。
 它证明"上架 → Discover 可见"这条链路是通的，但别人访问不到 `127.0.0.1`，
-所以真正公开仍要走第 1–5 步。端口若变，改这一行即可（插件会自动清理旧端口条目）。
+所以真正公开仍要走第 1–5 步。port 若变不用手改：`client.js` 会从
+`/__endpoint` 重新解析真实端口并自动把旧端口条目从索引列表里清掉。
 
 ---
 
