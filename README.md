@@ -35,6 +35,12 @@ plugin_manager install_bundle /absolute/path/to/Multi-agent-development-dynamic-
 
 装好后插件默认启用。打开任意一个 AI 会话，右侧侧边栏的浏览器标签页会自动打开预览；AI 写入 HTML 之后，动效就会在那边播放。
 
+装好之后它还会自己出现在 **Plugins → Discover** 里：主机侧内置了一条
+`/__dsh_swarm_rebuild__/market/index.json`（format-1 插件市场索引），客户端侧
+从 `/__endpoint` 解析出真实端口后把它注册进 `pluginMarket.setIndexes()`，
+所以不用手动加索引源，端口变了也会自动纠正。（官方目录的 PR 尚未提交，
+因此别人还搜不到；见 [docs/PUBLISH.md](docs/PUBLISH.md)。）
+
 **验证是否生效**：侧边栏标签页里能看到页面（或「正在等待 AI 生成网页…」的等待页），说明主机侧路由已经起来了；让 AI 写一个 HTML 文件，页面会自动刷新并开始搭建。
 
 要求：需要一个暴露了 web server 服务（`ctx.webServer`）和侧边栏浏览器标签页的 Harness 构建。
@@ -123,7 +129,14 @@ git clone https://github.com/lanyuxi/Multi-agent-development-dynamic-effect.git
 plugin_manager install_bundle /absolute/path/to/Multi-agent-development-dynamic-effect
 ```
 
-After installation the plugin is enabled by default: open any AI session and the sidebar browser tab opens with the effect, which plays as soon as the AI writes an HTML file. To verify, check that the sidebar tab shows the page (or the "waiting for the AI" screen) — that means the host route is up.
+After installation the plugin is enabled by default: open any AI session and the sidebar browser tab opens with the effect, which plays as soon as the AI writes an HTML file.
+
+It also lists itself under **Plugins → Discover**: the host half serves a format-1
+market index at `/__dsh_swarm_rebuild__/market/index.json`, and the client half
+resolves the real port from `/__endpoint` and registers it via
+`pluginMarket.setIndexes()`, so no manual index source is needed and a port change
+self-corrects. (The upstream catalog PR has not been filed yet, so other people
+cannot find it there — see [docs/PUBLISH.md](docs/PUBLISH.md).) To verify, check that the sidebar tab shows the page (or the "waiting for the AI" screen) — that means the host route is up.
 
 Requires a Harness build that exposes the web server service (`ctx.webServer`) and the sidebar browser tab.
 
